@@ -1,5 +1,7 @@
 # Building Mobile Applications with React Native & AWS Amplify
 
+Originally posted on https://github.com/dabit3/stockholm-loft-react-native
+
 In this workshop we'll learn how to build cloud-enabled mobile applications with React Native & [AWS Amplify](https://aws-amplify.github.io/).
 
 ![](https://imgur.com/IPnnJyf.jpg)
@@ -22,14 +24,18 @@ If you already have the CLI installed, go ahead and create a new React Native ap
 ```bash
 npm install -g react-native-cli
 
-react-native init AmplifyApp
+react-native init --version 0.57.8 AmplifyApp
 ```
+
+(React Native 0.58.x has an incompatibe change https://github.com/aws-amplify/amplify-js/issues/2618)
 
 Now change into the new app directory & install the AWS Amplify & AWS Amplify React Native libraries:
 
 ```bash
 cd AmplifyApp
 npm install --save aws-amplify aws-amplify-react-native
+npm install --save aws-amplify aws-amplify-react-native
+# twice
 # or
 yarn add aws-amplify aws-amplify-react-native
 ```
@@ -174,6 +180,8 @@ export default withAuthenticator(App, { includeGreetings: true })
 ```
 
 ### Creating custom user sign out button while using the withAuthenticator HOC
+
+https://github.com/aws-amplify/amplify-js/issues/1529
 
 ```js
 signOut = () => {
@@ -364,14 +372,13 @@ async componentDidMount() {
 }
 
 // add UI in render method to show data
-  {
-    this.state.pets.map((pet, index) => (
-      <View key={index}>
-        <Text>{pet.name}</Text>
-        <Text>{pet.description}</Text>
-      </View>
-    ))
-  }
+      <View style={styles.container}>
+        { this.state.pets.map((pet, index) => (
+          <View key={index}>
+            <Text>{pet.name}</Text>
+            <Text>{pet.description}</Text>
+          </View>))
+        }
 ```
 
 ## Performing mutations
@@ -548,7 +555,7 @@ amplify add api
 > This will open `amplify/backend/function/<FUNCTIONNAME>/src/app.js`
 > In this file, update the existing `app.get('/pets') route with the following:
 ```js
-app.get('/pets', function(req, res) {
+app.get('/items/pets', function(req, res) {
   // Add your code here
   // Return the API Gateway event and query string parameters for example
   const pets = [
@@ -593,7 +600,7 @@ componentDidMount() {
 }
 getData = async() => {
   try {
-    const data = await API.get('amplifyrestapilambda', '/pets')
+    const data = await API.get('amplifyrestapilambda', '/items/pets')
     this.setState({ pets: data.pets })
   } catch (err) {
     console.log('error fetching data..', err)
@@ -617,7 +624,7 @@ Next, let's configure the REST API to add another endpoint that will fetch data 
 
 First, we'll need to configure the API to know about the new path:
 
-```sh
+```bash
 amplify configure api
 ```
 
@@ -674,6 +681,12 @@ app.get('/people', function(req, res) {
 });
 ```
 
+and push the change to lambda 
+
+```bash
+amplify push
+```
+
 Now we can add a new function called getPeople that will call this API:
 
 ```js
@@ -701,6 +714,12 @@ amplify add analytics
 - Provide your pinpoint resource name: __amplifyanalytics__   
 - Apps need authorization to send analytics events. Do you want to allow guest/unauthenticated users to send analytics events (recommended when getting started)? __Y__   
 - overwrite YOURFILEPATH-cloudformation-template.yml __Y__
+
+and push the change to the cloud 
+
+```bash
+amplify push
+```
 
 ### Recording events
 
